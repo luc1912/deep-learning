@@ -26,10 +26,10 @@ def sample_gauss_2d(C, N):
         X = G.get_sample(N)
         if i == 0:
             x = X
-            y = np.ones(N) * i
+            y = np.ones(N, dtype=int) * i
         else:
             x = np.vstack((x, X))
-            y = np.hstack((y, np.ones(N) * i))
+            y = np.hstack((y, np.ones(N, dtype=int) * i))
     return x, y
 
 
@@ -71,6 +71,28 @@ def eval_AP(ranked_labels):
         tn += not x
 
     return sumprec/pos
+
+def eval_perf_multi(Y, Y_):
+   pr = []
+   n = max(Y_) + 1 # number of classes
+   M = np.bincount(n * Y_ + Y, minlength=n*n).reshape(n, n)
+   
+   for i in range(n):
+    tp_i = M[i,i]
+    fn_i = np.sum(M[i,:]) - tp_i
+    fp_i = np.sum(M[:,i]) - tp_i
+    tn_i = np.sum(M) - fp_i - fn_i - tp_i
+    recall_i = tp_i / (tp_i + fn_i)
+    precision_i = tp_i / (tp_i + fp_i)
+    pr.append( (recall_i, precision_i) )
+    
+   accuracy = np.trace(M)/np.sum(M)
+   return accuracy, pr, M
+
+def class_to_onehot(Y):
+  Yoh = np.zeros((len(Y), max(Y) + 1))
+  Yoh[range(len(Y)), Y] = 1
+  return Yoh
 
 
 def graph_data(X,Y_, Y, special=[]):

@@ -22,7 +22,7 @@ def binlogreg_train(X,Y_):
 
         scores = np.dot(X, w) + b     # N x 1
         probs = 1 / (1 + np.exp(-scores))     # N x 1
-        loss  = np.sum(-np.log(probs))     # scalar
+        loss  = np.mean(-np.log(probs))     # scalar
         
         if i % 10 == 0:
             print("iteration {}: loss {}".format(i, loss))
@@ -32,7 +32,7 @@ def binlogreg_train(X,Y_):
 
         # gradijenti parametara
         grad_w = dL_dscores.T @ X / X.shape[0]    # 1 x D
-        grad_b = dL_dscores / X.shape[0]     # 1 x 1
+        grad_b = np.sum(dL_dscores) / X.shape[0]     # 1 x 1
 
         # poboljšani parametri
         w += -param_delta * grad_w
